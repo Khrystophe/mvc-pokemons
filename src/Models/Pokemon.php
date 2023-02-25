@@ -18,18 +18,21 @@ class Pokemon extends Model
 
     public function findAll()
     {
-        $sql = 'SELECT * FROM `pokemon` ORDER BY `number`';
+        $sql = 'SELECT * FROM pokemon ORDER BY number';
         $pdo = Database::getPDO();
-        $stmt = $pdo->query($sql);
+        $stmt = $pdo->prepare($sql);
+		$stmt->execute();
         $pokemons = $stmt->fetchAll(PDO::FETCH_CLASS, __CLASS__);
         return $pokemons;
     }
 
 	public function findById($id)
 	{
-		$sql = 'SELECT * FROM `pokemon` WHERE `id` = ' . $id;
+		$sql = 'SELECT * FROM pokemon WHERE id = :id';
         $pdo = Database::getPDO();
-        $stmt = $pdo->query($sql);
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+		$stmt->execute();
         $pokemon = $stmt->fetchObject(__CLASS__);
         return $pokemon;
 	}
@@ -47,13 +50,15 @@ class Pokemon extends Model
 			pokemon.spe_defense,
 			pokemon.speed,
 			pokemon.number
-			FROM `pokemon`
-			INNER JOIN `pokemon_type`
-			ON `number` = `pokemon_number`
-			WHERE `type_id` = ' . $typeId . ' ORDER BY `number`
+			FROM pokemon
+			INNER JOIN pokemon_type
+			ON number = pokemon_number
+			WHERE type_id = :typeId ORDER BY number
 		';
 		$pdo = Database::getPDO();
-        $stmt = $pdo->query($sql);
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':typeId', $typeId, PDO::PARAM_INT);
+		$stmt->execute();
         $pokemons = $stmt->fetchAll(PDO::FETCH_CLASS, __CLASS__);
         return $pokemons;
 	}

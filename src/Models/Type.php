@@ -12,18 +12,21 @@ class Type extends Model
 
 	public function findAll()
     {
-        $sql = 'SELECT * FROM `type` ORDER BY `name`';
+        $sql = 'SELECT * FROM type ORDER BY name';
         $pdo = Database::getPDO();
-        $stmt = $pdo->query($sql);
+        $stmt = $pdo->prepare($sql);
+		$stmt->execute();
         $types = $stmt->fetchAll(PDO::FETCH_CLASS, __CLASS__);
         return $types;
     }
 
 	public function findById($id)
 	{
-		$sql = 'SELECT * FROM `type` WHERE `id` = ' . $id;
+		$sql = 'SELECT * FROM type WHERE id = :id';
         $pdo = Database::getPDO();
-        $stmt = $pdo->query($sql);
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+		$stmt->execute();
         $type = $stmt->fetchObject(__CLASS__);
         return $type;
 	}
@@ -35,11 +38,13 @@ class Type extends Model
 			type.id,
 			type.name,
 			type.color
-			FROM `type`
-			INNER JOIN `pokemon_type`
-			ON `pokemon_number` = ' . $pokemonNumber . ' WHERE `type_id` = type.id';
+			FROM type
+			INNER JOIN pokemon_type
+			ON pokemon_number =  :pokemonNumber WHERE type_id = type.id';
         $pdo = Database::getPDO();
-        $stmt = $pdo->query($sql);
+        $stmt = $pdo->prepare($sql);
+		$stmt->bindParam(':pokemonNumber', $pokemonNumber, PDO::PARAM_INT);
+		$stmt->execute();
         $types = $stmt->fetchAll(PDO::FETCH_CLASS, __CLASS__);
         return $types;
 	}
